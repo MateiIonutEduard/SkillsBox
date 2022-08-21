@@ -1,5 +1,6 @@
+import re
 import requests as req
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, NavigableString
 
 
 class Answer(object):
@@ -40,10 +41,14 @@ def GetAnswers(url):
             state = item.next
             j += 1
 
-            if 'checked' in state.attrs:
-                if state.attrs['checked'] == 'checked':
-                    answer = item.text
-                    break
+            if type(state) is not NavigableString:
+                if 'checked' in state.attrs:
+                    if state.attrs['checked'] == 'checked':
+                        answer = item.text
+                        break
+            else:
+                answer = item.text.replace("(<([^>]+)>)", "")
+                break
 
         item = Answer(title, answer)
         quiz.append(item)
